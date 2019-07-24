@@ -1,0 +1,29 @@
+^[\-\.·,:\s0\']*
+([0-9GSO~iIlJT\)&\'\|]+)  # Group 1 - SampleID
+[\-\s\(\.\{L\\'\'~0·\|]*
+([0-9iIl!pS~o\-•Z\.,&\|]{2,})  # Group 2 - Lattitude degrees
+[°\s90Qg\|]*
+([0-9iIl!pS~roJ\()\.\|]{2,})  # Group 3 - Lattitude minutes
+[\'\\ji\s1;\|]*
+([0-9iIl!pS~norJf\|]{2,})?  # Group 4 - Lattitude seconds (optional)
+[\"\\'\s,~\.;\)\|]*
+([0-9iIl!pS~of\s\$sa·t£\|]{1,})  # Group 5 - Longitude degrees
+[°\s90Qg\|]*
+([0-9iIl!pS~\soJ\-Zj\|]{2,})  # Group 6 - Longitude minutes
+[\'\\\s\|]*
+([0-9iIl!pS~oq]{2,})?  # Group 7 - Longitude seconds (optional)
+([Ww]?)?  # Group 8 - Longitude direction (W)
+[\"\)\}\.,wWt\s\'j\|:]+
+([A-z\s\-~\(\)·0\|\?\']{3,})  # Group 9 - Rock name
+[\.\|,]{2,}
+([A-z0-9\s\-~\']+)  # Group 10 - Whole rock age
+[\.\|\s,\']+
+([A-z0-9\s\-~\|\'\?!]{2,})?  # Group 11 - Massif name (optional)
+(?(11)[\.\|\s,]{2,}|[\.\|\s,]*)
+([A-z0-9\s\.,\'!\|~]{4,})?  # Group 12 - Analyst name (optional)
+(?(12)[\.\|\s,]+|[\.\|\s,]*)
+([A-z0-9\s:\.,~\-+\|\?\']+)?  # Group 13 - Interpretation of "oth." and "det." (optional)
+(?(13)[\.\|\s,]+|[\.\|\s,]*)
+[\(\{]+
+([A-z\.,0-9\s\|\'~\-!\?]+)  # Group 14 - Author and year of the original report
+[\)\}\.\s]+
