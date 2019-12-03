@@ -125,6 +125,8 @@ def dms2dec(dms_str):
     >>> dms2dec(utf8(2°20'35.09"W))
     -2.34330555556F
 
+    https://gist.github.com/jeteon/89c41e4081d87b798d8006b16a52c695
+
     """
 
     dms_str = re.sub(r'\s', '', dms_str)
