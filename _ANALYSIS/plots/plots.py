@@ -41,7 +41,7 @@ cmap_dict = defaultdict(lambda: mpl.cm.binary,
              "B": mpl.cm.Greens,
              "A": mpl.cm.Greens,
              "H": mpl.cm.Greens,
-             }
+             })
 
 
 def plot_cross_variogram(variogram_results, PCx, PCy, title=None,
