@@ -26,22 +26,20 @@ QAPF_upper_regions_numbers_inverse = {}
 for (key, value), counter in zip(QAPF_upper_regions_numbers.items(),
                                  range(0, 18, 1)):
     QAPF_upper_regions_numbers_inverse[counter] = key
-    # QAPF_upper_regions_numbers_inverse[counter + 1] = key
 
 QAPF_upper_regions_numbers_vs_cmap = {}
 for key, value in zip(range(0, 21, 1), np.arange(0, 1.05, 0.05)):
     QAPF_upper_regions_numbers_vs_cmap[key] = value
-    # QAPF_upper_regions_numbers_vs_cmap[key + 1] = value
 
 cmap_dict = defaultdict(lambda: mpl.cm.binary,
-            {"Q": mpl.cm.binary,
-             "P": mpl.cm.Reds,
-             "K": mpl.cm.Blues,
-             "Others": mpl.cm.Greens,
-             "B": mpl.cm.Greens,
-             "A": mpl.cm.Greens,
-             "H": mpl.cm.Greens,
-             })
+                        {"Q": mpl.cm.binary,
+                         "P": mpl.cm.Reds,
+                         "K": mpl.cm.Blues,
+                         "Others": mpl.cm.Greens,
+                         "B": mpl.cm.Greens,
+                         "A": mpl.cm.Greens,
+                         "H": mpl.cm.Greens,
+                         })
 
 
 def plot_cross_variogram(variogram_results, PCx, PCy, title=None,
@@ -102,6 +100,7 @@ def plot_cross_variogram(variogram_results, PCx, PCy, title=None,
                        fontsize=9,
                        rotation='horizontal')
 
+    # Display number of pairs
     if print_n_pairs:
         for lag, semi, n in zip(lags, semivariance, n_pairs):
             plt.text(lag*1.01, semi, f"{n:4.0f}", color='grey')
@@ -150,14 +149,16 @@ def overview_plot_search_radius(coordinates, subset=["X", "Y"],
     # axs = ax.ravel()
 
     for i, radius in enumerate(range(radius_min, radius_max, radius_step)):
-        sns.countplot(find_points_within_search_radius(
-                calculate_and_sort_square_distance_matrix(coordinates[subset]),
+        sns.countplot(
+            find_points_within_search_radius(
+                calculate_and_sort_square_distance_matrix(
+                    coordinates[subset]),
                 radius,
                 False),
-                      ax=ax)
+            ax=ax)
         ax.set_title(f"Search radius = {radius} m")
         ax.xaxis.set_tick_params(rotation=0)
-    plt.show
+    plt.show()
 
 
 def interactive_plot_search_radius(coordinates, subset=["X", "Y"],
@@ -225,10 +226,6 @@ def interactive_plot_search_radius(coordinates, subset=["X", "Y"],
             # Change display of spines
             axs[i].spines['right'].set_visible(False)
             axs[i].spines['top'].set_visible(False)
-#             axs[i].spines['left'].set_visible(False)
-
-            # Disable y-axis
-#             axs[i].get_yaxis().set_visible(False)
 
             # Set the color of the visible spines
 #             axs[i].spines['bottom'].set_color('grey')
@@ -277,7 +274,7 @@ def plot_map_with_control_points(coordinates, pluton, subset=["X", "Y"],
                    labelsize=9)
 
     ax.set_aspect('equal', adjustable='box')
-    # plt.xticks(rotation=45)
+
     fig.patch.set_facecolor('white')
 
     plt.tight_layout()
@@ -328,8 +325,6 @@ def plot_qapf_map(coordinates, pluton, subset=["X", "Y"], qapf="QAPF",
                     i,
                     fontsize=label_size)
 
-    # plt.xticks(rotation=45)
-
     plt.gca().set_aspect('equal', adjustable='box')
 
     if skip_xaxis_label != 0:
@@ -356,6 +351,7 @@ def plot_qapf_map(coordinates, pluton, subset=["X", "Y"], qapf="QAPF",
                    colors='grey',
                    labelsize=9)
 
+    # Disable axis labels
     ax.set_xlabel("")
     ax.set_ylabel("")
 
@@ -380,7 +376,8 @@ def plot_qapf_map(coordinates, pluton, subset=["X", "Y"], qapf="QAPF",
     else:
         # Slice the handles and labels to remove automatic Seaborn
         # legend title
-        ax.legend(handles=handles[1:], labels=labels[1:], ncol=1, title="", prop={'size': 8})
+        ax.legend(handles=handles[1:], labels=labels[1:], ncol=1, title="",
+                  prop={'size': 8})
         plt.tight_layout()
 
     if save_fig:
@@ -602,6 +599,7 @@ def plot_contour_map_all(PC_interpolated,
         # Change display of spines
         # axs[i].spines['right'].set_visible(False)
         # axs[i].spines['top'].set_visible(False)
+
     # fig.suptitle(f"{pluton} utm {title}")
     fig.patch.set_facecolor('white')
     plt.tight_layout()
@@ -676,7 +674,6 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
     # cmap_custom_converted[index + 1] = \
     #     cmap_custom(QAPF_upper_regions_numbers_vs_cmap[item])
 
-    # print(list(cmap_custom_converted.values()))
     cmap_custom_converted = \
         ListedColormap(list(cmap_custom_converted.values()))
 
@@ -684,15 +681,8 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
                                          number_of_colors + 1,
                                          clip=True)
 
-    # print("camp", cmap_custom_converted(2))
-
-    # print(cmap_custom_converted)
-    # print(norm_custom_converted)
-    # print(levels_custom_converted)
-
     interpolation_array_converted = \
         np.vectorize(converted_numbers.get)(interpolation_array)
-    # print(interpolation_array_converted[250])
 
     # Add 1 to every value in array to make sure right color is plotted
     # later on
@@ -704,7 +694,6 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
                           cmap=cmap_custom_converted,
                           norm=norm_custom_converted,
                           levels=levels_custom_converted)
-    # plt.colorbar(contour)
 
     if plot_control_points:
         if show_qapf_control_points:
@@ -724,6 +713,7 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
                     marker='o',
                     ms=marker_size,
                     linestyle='None')
+
     # plt.colorbar(contour)
 
     if not no_legend:
@@ -1414,7 +1404,6 @@ def plot_simulation_results(results, pluton, nugget_theoretical,
 
     if inverse:
         results_ = {1/key: value for key, value in results.items()}
-        # print(results_.keys())
         sample_size_start_ = 1 / sample_size_start
     else:
         results_ = results.copy()
