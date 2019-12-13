@@ -32,6 +32,12 @@ def replace_zero(data, value=0.1):
     return data.replace(0.0, value)
 
 
+def replace_nan(data, value=0.1):
+    """Replace zero values by small value to overcome issues when
+    performing log ratio transformation"""
+    return data.replace(np.nan, value)
+
+
 def clr(data):
     """Centred log ratio transformation"""
 
