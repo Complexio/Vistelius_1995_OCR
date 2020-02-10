@@ -232,7 +232,7 @@ def interactive_plot_search_radius(coordinates, subset=["X", "Y"],
 
 
 def plot_map_with_control_points(coordinates, pluton, subset=["X", "Y"],
-                                 save_fig=True, label_size=5,
+                                 save_fig=True, label_size=5, show_labels=True,
                                  skip_xaxis_label=0, skip_yaxis_label=0,
                                  skip_xaxis_start=0, skip_yaxis_start=0):
 
@@ -242,12 +242,12 @@ def plot_map_with_control_points(coordinates, pluton, subset=["X", "Y"],
                 coordinates[subset[1]],
                 linestyle='None',
                 s=5)
-
-    for i, row in coordinates.iterrows():
-        plt.text(row[subset[0]],
-                 row[subset[1]],
-                 i,
-                 fontsize=label_size)
+    if show_labels:
+        for i, row in coordinates.iterrows():
+            plt.text(row[subset[0]],
+                     row[subset[1]],
+                     i,
+                     fontsize=label_size)
 
     if skip_xaxis_label != 0:
         every_nth = skip_xaxis_label
