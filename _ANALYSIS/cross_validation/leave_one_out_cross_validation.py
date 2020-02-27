@@ -20,10 +20,8 @@ from sklearn.metrics import make_scorer, mean_squared_error
 
 def perform_loocv(mineralogy_pca,
                   coordinates_utm,
-                  variogram_model_parameters,
-                  number_of_control_points,
-                  n_lags=12,
-                  search_radii=[500, 1000],
+                  cv_param_dict,
+                  n_jobs=-1,
                   verbose_level=5):
     """Perform Leave-One-Out Cross Validation"""
 
@@ -32,25 +30,16 @@ def perform_loocv(mineralogy_pca,
     # Do not use the last principal component
     for component in mineralogy_pca.columns.tolist()[:-1]:
         # print(component)
-        param_dict = {"method": ["ordinary"],
-                      "variogram_model": ["spherical", "exponential"],
-                      "variogram_model_parameters":
-                      [variogram_model_parameters[component]],
-                      "nlags": [n_lags],
-                      "weight": [True],
-                      "n_closest_points": [number_of_control_points],
-                      "search_radius": search_radii
-                      }
 
         scorer = make_scorer(mean_squared_error)
         # scorer = make_scorer(mean_squared_deviation_ratio)
 
         estimator = GridSearchCV(Krige(),
-                                 param_dict,
+                                 cv_param_dict,
                                  verbose=verbose_level,
-                                 cv=number_of_control_points,
+                                 cv=cv_param_dict["n_closest_points"],
                                  iid=False,
-                                 n_jobs=-1,
+                                 n_jobs=n_jobs,
                                  return_train_score=True,
                                  scoring=scorer)
 
