@@ -35,9 +35,9 @@ def perform_loocv(mineralogy_pca,
         # scorer = make_scorer(mean_squared_deviation_ratio)
 
         estimator = GridSearchCV(Krige(),
-                                 cv_param_dict,
+                                 cv_param_dict[component],
                                  verbose=verbose_level,
-                                 cv=cv_param_dict["n_closest_points"],
+                                 cv=cv_param_dict[component]["n_closest_points"][0],
                                  iid=False,
                                  n_jobs=n_jobs,
                                  return_train_score=True,
@@ -46,6 +46,8 @@ def perform_loocv(mineralogy_pca,
         estimator.fit(X=np.stack((coordinates_utm["X"],
                                   coordinates_utm["Y"]), axis=1),
                       y=mineralogy_pca[component])
+
+        print(estimator)
 
         estimators[component] = estimator
 
