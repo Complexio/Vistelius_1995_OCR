@@ -438,16 +438,16 @@ class OrdinaryKriging:
         #         self.variogram_function(self.variogram_model_parameters,
         #                                 self.lags), 'k-', label=f"{self.variogram_model} model variogram")
         ax.hlines(self.variance, 0, self.lags[-1], 'g')
-        plt.text(0,
-                 self.variance * 1.05,
-                 f"Variance: {self.variance:.3f}",
-                 color='g')
+        # plt.text(0,
+        #          self.variance * 1.05,
+        #          f"Variance: {self.variance:.3f}",
+        #          color='g')
         text = f"Partial sill: {self.variogram_model_parameters[0]:.3f}\nRange: {self.variogram_model_parameters[1]:.3f}\nNugget: {self.variogram_model_parameters[2]:.3f}\nnlags: {self.nlags}"
 
         for lag, semi, n in zip(self.lags, self.semivariance, self.n_pairs):
             plt.text(lag*1.01, semi, f"{n:4.0f}", color='grey', fontsize=8)
 
-        plt.text(0.05, 0.75, text, transform=ax.transAxes)
+        # plt.text(0.05, 0.75, text, transform=ax.transAxes)
         plt.xlabel("Lag")
         plt.ylabel(r"$\gamma_{h}$")
         plt.title(f"{self.pluton}_{self.component}")

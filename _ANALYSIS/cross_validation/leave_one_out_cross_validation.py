@@ -21,6 +21,7 @@ from sklearn.metrics import make_scorer, mean_squared_error
 def perform_loocv(mineralogy_pca,
                   coordinates_utm,
                   cv_param_dict,
+                  cv_folds=None,
                   n_jobs=-1,
                   verbose_level=5):
     """Perform Leave-One-Out Cross Validation"""
@@ -34,10 +35,13 @@ def perform_loocv(mineralogy_pca,
         scorer = make_scorer(mean_squared_error)
         # scorer = make_scorer(mean_squared_deviation_ratio)
 
+        if cv_folds is None:
+            cv_folds = cv_param_dict[component]["n_closest_points"][0]
+
         estimator = GridSearchCV(Krige(),
                                  cv_param_dict[component],
                                  verbose=verbose_level,
-                                 cv=cv_param_dict[component]["n_closest_points"][0],
+                                 cv=cv_folds,
                                  iid=False,
                                  n_jobs=n_jobs,
                                  return_train_score=True,
