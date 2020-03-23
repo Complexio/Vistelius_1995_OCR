@@ -23,14 +23,17 @@ def perform_loocv(mineralogy_pca,
                   cv_param_dict,
                   cv_folds=None,
                   n_jobs=-1,
-                  verbose_level=5):
+                  verbose_level=5,
+                  components_to_use=None):
     """Perform Leave-One-Out Cross Validation"""
 
     estimators = {}
+    if components_to_use is None:
+        components_to_use = mineralogy_pca.columns.tolist()[:-1]
 
     # Do not use the last principal component
-    for component in mineralogy_pca.columns.tolist()[:-1]:
-        # print(component)
+    for component in components_to_use:
+        print(component)
 
         scorer = make_scorer(mean_squared_error)
         # scorer = make_scorer(mean_squared_deviation_ratio)
@@ -51,7 +54,7 @@ def perform_loocv(mineralogy_pca,
                                   coordinates_utm["Y"]), axis=1),
                       y=mineralogy_pca[component])
 
-        print(estimator)
+        # print(estimator)
 
         estimators[component] = estimator
 

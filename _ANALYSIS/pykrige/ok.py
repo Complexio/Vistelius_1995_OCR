@@ -614,7 +614,7 @@ class OrdinaryKriging:
         Less memory-intensive, but involves a Python-level loop."""
         import scipy.linalg.lapack
 
-        verboses = True
+        verboses = False
         implement_nugget = False
 
         npt = bd_all.shape[0]

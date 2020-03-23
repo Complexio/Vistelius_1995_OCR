@@ -152,8 +152,8 @@ class Krige(RegressorMixin, BaseEstimator):
             print('n_closest_points will be ignored for UniversalKriging')
             prediction, variance = \
                 self.model.execute('points', backend='loop', **points)
-        print("OK", prediction, variance)
-        print("n_values", nvalues)
+        # print("OK", prediction, variance)
+        # print("n_values", nvalues)
         return prediction, variance
 
 
