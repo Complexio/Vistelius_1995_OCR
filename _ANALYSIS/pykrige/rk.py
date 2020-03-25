@@ -19,7 +19,7 @@ threed_krige = ('ordinary3d', 'universal3d')
 
 variable_to_fit_dict = {"estimates": 0,
                         "variances": 1,
-                        }
+                        "both": slice(0, 2)}
 
 
 def validate_method(method):
