@@ -403,6 +403,9 @@ def plot_contour_map(PC_interpolated,
                      skip_yaxis_label=0,
                      skip_xaxis_start=0,
                      skip_yaxis_start=0,
+                     marker_color='k',
+                     marker_size=1,
+                     marker_symbol='.',
                      **kwargs,
                      ):
     fig, ax = plt.subplots(**kwargs)
@@ -431,7 +434,10 @@ def plot_contour_map(PC_interpolated,
 
     ax.plot(coordinates_utm["X"].values,
             coordinates_utm["Y"].values,
-            'ko', ms=1)
+            color=marker_color,
+            ms=marker_size,
+            marker=marker_symbol,
+            linestyle='None')
 
     fig.text(label_pos[0], label_pos[1], mineral,
              transform=ax.transAxes, color='grey')
@@ -521,6 +527,9 @@ def plot_contour_map_all(PC_interpolated,
                          skip_yaxis_label=0,
                          skip_xaxis_start=0,
                          skip_yaxis_start=0,
+                         marker_color='k',
+                         marker_size=1,
+                         marker_symbol='.',
                          **kwargs,
                          ):
 
@@ -545,7 +554,10 @@ def plot_contour_map_all(PC_interpolated,
 
         axs[i].plot(coordinates_utm["X"].values,
                     coordinates_utm["Y"].values,
-                    'ko', ms=1)
+                    color=marker_color,
+                    ms=marker_size,
+                    marker=marker_symbol,
+                    linestyle='None')
 
         fig.text(label_pos[0], label_pos[1], mineral,
                  transform=axs[i].transAxes, color='grey')

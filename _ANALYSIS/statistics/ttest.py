@@ -46,13 +46,11 @@ def convert_ttest_results_to_dict_of_df(ttest_results):
 
 def convert_summary_test_results_to_df(ttest_summary,
                                        combinations=["#PCs",
-                                                     "nugget_type",
                                                      "search_radius"],
                                        variable_names=["ttest_stat",
                                                        "ttest_crit",
                                                        "abs(stat) > crit"],
                                        order=["#PCs",
-                                              "nugget_type",
                                               "search_radius"],):
 
     columns = variable_names.copy()
@@ -62,12 +60,8 @@ def convert_summary_test_results_to_df(ttest_summary,
                                    .reset_index()
     ttest_summary_df["#PCs"] = \
         list(map(int, ttest_summary_df["index"].str.split("_").str[0]))
-    ttest_summary_df["nugget_type"] = \
-        ttest_summary_df["index"].str.split("_").str[1]
     ttest_summary_df["search_radius"] = \
-        list(map(int, ttest_summary_df["index"].str.split("_").str[2]))
-    ttest_summary_df["agg"] = \
-        ttest_summary_df["index"].str.split("_").str[3]
+        list(map(int, ttest_summary_df["index"].str.split("_").str[1]))
 
     ttest_summary_df = ttest_summary_df.drop(["index"], axis=1)
     # print(ttest_summary_df)
