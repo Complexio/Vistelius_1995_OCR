@@ -164,7 +164,8 @@ class OrdinaryKriging:
                  weight=False, anisotropy_scaling=1.0, anisotropy_angle=0.0,
                  verbose=False, enable_plotting=False, enable_statistics=False,
                  coordinates_type='euclidean', saveplot=False, saveloc=None,
-                 principal_component=None, pluton=None):
+                 principal_component=None, pluton=None, show_nlag_pairs=False,
+                 show_range_determine_guide=False, range_estimate=None):
 
         # Code assumes 1D input arrays of floats. Ensures that any extraneous
         # dimensions don't get in the way. Copies are created to avoid any
@@ -189,6 +190,9 @@ class OrdinaryKriging:
         self.component = principal_component
         self.pluton = pluton
         self.nlags = nlags
+        self.show_nlag_pairs = show_nlag_pairs
+        self.show_range_determine_guide = show_range_determine_guide
+        self.range_estimate = range_estimate
 
         # adjust for anisotropy... only implemented for euclidean (rectangular)
         # coordinates, as anisotropy is ambiguous for geographic coordinates...
@@ -444,8 +448,17 @@ class OrdinaryKriging:
         #          color='g')
         text = f"Partial sill: {self.variogram_model_parameters[0]:.3f}\nRange: {self.variogram_model_parameters[1]:.3f}\nNugget: {self.variogram_model_parameters[2]:.3f}\nnlags: {self.nlags}"
 
-        for lag, semi, n in zip(self.lags, self.semivariance, self.n_pairs):
-            plt.text(lag*1.01, semi, f"{n:4.0f}", color='grey', fontsize=8)
+        if self.show_range_determine_guide:
+            ax.hlines(0.95 * self.variance, 0, self.lags[-1], 'b')
+
+        if self.show_nlag_pairs:
+            for lag, semi, n in zip(self.lags,
+                                    self.semivariance,
+                                    self.n_pairs):
+                plt.text(lag*1.01, semi, f"{n:4.0f}", color='grey', fontsize=8)
+
+        if self.range_estimate:
+            ax.vlines(self.range_estimate, 0, self.variance, 'm')
 
         # plt.text(0.05, 0.75, text, transform=ax.transAxes)
         plt.xlabel("Lag")
