@@ -1,0 +1,15 @@
+ ========================================================================================================================
+                                                                                                                         
+                               DATA FILE : Infile.txt          
+                     ========================================
+ BELOW ARE RARE AND ODD INCONSISTANCIES ENCOUNTERED
+ IN THE DATASET. THEY MAY BE RESOLVED AS FOLLOWS:
+  1 - CHECK INPUT DATA FOR ERRORS AND CORRECT.
+  2 - RUN JOB AGAIN WITHOUT NORMALIZATION.
+  3 - ENSURE THE ANALYSIS IS FOR AN IGNEOUS SILICATE ROCK.
+                                                                                                                         
+ ========================================================================================================================
+ SAMPLE EARVTRN9 HAS AN ANOMOLOUS NORMATIVE MG/FE+MG RATIO OF  1.00000000
+ SAMPLE EARVTR10 HAS AN ANOMOLOUS NORMATIVE MG/FE+MG RATIO OF  1.00000000
+ SAMPLE HARZB     HAS A NEGATIVE NORM VALUE OF  -9.841  AN
+ SAMPLE HARZB     HAS   0.000 SURPLUS OF   P2O5 AFTER CALCULATION OF NORMATIVE APATITE  
