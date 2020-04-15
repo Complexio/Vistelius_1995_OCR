@@ -60,7 +60,7 @@ def pca(clr_data):
     return pca
 
 
-def pca_variance(pca):
+def pca_variance(pca, threshold=0.95):
     # Determine PCA expleined variance ratio
     pca_variance = pca.explained_variance_ratio_
 
@@ -68,7 +68,7 @@ def pca_variance(pca):
     variance_n_comp = 0
 
     for v in range(pca.n_components_):
-        if variance_sum < 0.95:
+        if variance_sum < threshold:
             variance_sum += pca.explained_variance_ratio_[v]
             variance_n_comp += 1
 
@@ -78,7 +78,7 @@ def pca_variance(pca):
         pca.n_components_,
         "components with variance sum",
         variance_sum,
-        "needed for obtaining sum of variance > 0.95",
+        f"needed for obtaining sum of variance > {threshold}",
     )
 
     return pca_variance

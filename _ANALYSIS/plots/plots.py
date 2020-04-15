@@ -922,6 +922,119 @@ def custom_colorbar():
     fig.show()
 
 
+def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
+           loadings=True, loading_labels=True, loading_factor=1,
+           loadings_forward=False, plot_datalabels=False, label_size=6,
+           offsets=[0., 0., 0., 0.], extra_ticks=[[], [], [], []],
+           xspacing=1.0, xformat="2.0f", yspacing=1.0, yformat="2.0f",
+           adjust='datalim', skip_xaxis_label=0, skip_xaxis_start=0,
+           skip_yaxis_label=0, skip_yaxis_start=0,
+           override_data_boundaries=False, axes_offset=0.1, **kwargs):
+    """Plot biplot of PCA with or wihtout loadings"""
+
+    # Get PC scores
+    xs = pca_df.loc[:, PCx]
+    ys = pca_df.loc[:, PCy]
+
+    # Plot basic biplot
+    ax = sns.scatterplot(x=PCx, y=PCy,
+                         data=pca_df,
+                         edgecolor='k',
+                         linewidth=0.3,
+                         **kwargs,
+                         )
+
+    if plot_datalabels:
+        for i, row in pca_df.iterrows():
+            ax.text(row[PCx],
+                    row[PCy],
+                    i,
+                    fontsize=label_size)
+
+    # Plot PC loadings if wanted
+    if loadings:
+        # Calculate PC vectors/loadings
+        xvector = pca.components_[int(PCx[-1]) - 1]
+        yvector = pca.components_[int(PCy[-1]) - 1]
+
+        for i in range(len(xvector)):
+            # Arrows project features (ie columns from csv) as vectors onto
+            # PC axes
+            if loadings_forward:
+                zorder_loadings = 10
+            else:
+                zorder_loadings = -10
+            ax.arrow(0, 0,
+                     xvector[i]*max(xs)*loading_factor,
+                     yvector[i]*max(ys)*loading_factor,
+                     color='k',
+                     width=0.005,
+                     head_width=0.1,
+                     zorder=zorder_loadings)
+
+            if loading_labels:
+                ax.text(position_text(xvector[i]*max(xs)*loading_factor, 0.2),
+                        position_text(yvector[i]*max(ys)*loading_factor, 0.2),
+                        columns[i],
+                        color='k')
+
+    # Plot smaller axis legend than default
+    ax.legend(fontsize='x-small')
+
+    # Restyle axes labels
+    axes_labels(PCx.replace("0", ""), PCy.replace("0", ""))
+
+    sns.despine()
+
+    # Format the axes to get a better looking plot
+    axes_format(ax, pca_df[PCx], pca_df[PCy], offsets,
+                adjust=adjust,
+                xspacing=xspacing, xformat=xformat,
+                yspacing=yspacing, yformat=yformat,
+                skip_xaxis_label=skip_xaxis_label,
+                skip_xaxis_start=skip_xaxis_start,
+                skip_yaxis_label=skip_yaxis_label,
+                skip_yaxis_start=skip_yaxis_start,
+                extra_ticks=extra_ticks,
+                override_data_boundaries=override_data_boundaries,
+                axes_offset=axes_offset,)
+
+    # Set facecolor of figure
+    plt.gcf().set_facecolor('white')
+    plt.tight_layout()
+
+    # Add extra description to save name if needed
+    if "hue" in list(kwargs.keys()):
+        add = f"_by_{kwargs['hue']}"
+    else:
+        add = ""
+
+    plt.savefig(f"../_FIGURES/biplots/{group}/{group}_biplot_control_points{add}.pdf",
+         dpi=900)
+
+    plt.show()
+
+def position_text(position, offset):
+    """Create new position coordinates for text annotating arrow
+
+    Parameters:
+    ------------
+    position: float
+        initial coordinate value
+    offset: float
+        value to offset initial coordinate by
+
+    Returns:
+    --------
+    position +/- offset
+
+    """
+    if position >= 0:
+        return position + offset
+    else:
+        return position - offset
+
+
 def biplot_control_and_grid(pca_df, pluton, PCx="PC01", PCy="PC02",
                             offsets=[0., 0., 0., 0.],
                             extra_ticks=[[], [], [], []],
