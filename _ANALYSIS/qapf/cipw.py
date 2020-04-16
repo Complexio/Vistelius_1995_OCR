@@ -101,7 +101,7 @@ def convert_to_CIPWFULL_format(df, path, dataset_name="Dataset",
 
 
 def extract_CIPW_results(path,
-                         columns_of_interest=['  QZ', '  OR', '  AB', '  AN'],
+                         columns_of_interest=['  QZ', '  OR', '  AB', '  AN', 'ALKALINITY'],
                          print_columns=False):
     """Extract the results from CIPWFULL run
 
@@ -131,7 +131,7 @@ def extract_CIPW_results(path,
     df = df.iloc[:-1, :]
 
     # Quary columns in which we're interested
-    columns_of_interest = ['  QZ', '  OR', '  AB', '  AN']
+    columns_of_interest = ['  QZ', '  OR', '  AB', '  AN', 'ALKALINITY']
     df_query = df.loc[:, columns_of_interest]
 
     # Convert values to floats
@@ -143,5 +143,6 @@ def extract_CIPW_results(path,
     df_final["Q"] = df_query["  QZ"]
     df_final["P"] = df_query["  AB"] + df_query["  AN"]
     df_final["K"] = df_query["  OR"]
+    df_final["ALKALINITY"] = df_query["ALKALINITY"]
 
     return df_final
