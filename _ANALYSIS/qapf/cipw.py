@@ -3,7 +3,7 @@ import pandas as pd
 
 def convert_to_CIPWFULL_format(df, path, dataset_name="Dataset",
                                index_prefix=None, rock_type="P",
-                               rock_suite_column=None, normalization=False,
+                               rock_suite_column=None, normalization=True,
                                return_resulting_df=False):
     """Converts a pandas DataFrame to a txt file compatible
     as an input file for the CIPWFULL program by AL-Mishwat (2015)
@@ -72,7 +72,7 @@ def convert_to_CIPWFULL_format(df, path, dataset_name="Dataset",
         # Write a '1' before the dataset name if you want CIPWFULL
         # to normalize the data before the calculation; else write space
         if normalization:
-            f.write("1")
+            f.write("1 ")
         else:
             f.write(" ")
 
@@ -101,7 +101,7 @@ def convert_to_CIPWFULL_format(df, path, dataset_name="Dataset",
 
 
 def extract_CIPW_results(path,
-                         columns_of_interest=['  QZ', '  OR', '  AB', '  AN', 'ALKALINITY'],
+                         columns_of_interest=['  QZ', '  OR', '  AB', '  AN'],
                          print_columns=False):
     """Extract the results from CIPWFULL run
 
@@ -131,7 +131,7 @@ def extract_CIPW_results(path,
     df = df.iloc[:-1, :]
 
     # Quary columns in which we're interested
-    columns_of_interest = ['  QZ', '  OR', '  AB', '  AN', 'ALKALINITY']
+    columns_of_interest = ['  QZ', '  OR', '  AB', '  AN']
     df_query = df.loc[:, columns_of_interest]
 
     # Convert values to floats
@@ -143,6 +143,5 @@ def extract_CIPW_results(path,
     df_final["Q"] = df_query["  QZ"]
     df_final["P"] = df_query["  AB"] + df_query["  AN"]
     df_final["K"] = df_query["  OR"]
-    df_final["ALKALINITY"] = df_query["ALKALINITY"]
 
     return df_final
