@@ -3,7 +3,7 @@ import pandas as pd
 
 def convert_to_CIPWFULL_format(df, path, dataset_name="Dataset",
                                index_prefix=None, rock_type="P",
-                               rock_suite_column=None, normalization=True,
+                               rock_suite_column=None, normalization=False,
                                return_resulting_df=False):
     """Converts a pandas DataFrame to a txt file compatible
     as an input file for the CIPWFULL program by AL-Mishwat (2015)
@@ -141,7 +141,7 @@ def extract_CIPW_results(path,
     df_final = pd.DataFrame()
 
     df_final["Q"] = df_query["  QZ"]
-    df_final["P"] = df_query["  AB"] + df_query["  AN"]
-    df_final["K"] = df_query["  OR"]
+    df_final["P"] = df_query["  AB"] 
+    df_final["K"] = df_query["  OR"] + df_query["  AN"]
 
     return df_final
