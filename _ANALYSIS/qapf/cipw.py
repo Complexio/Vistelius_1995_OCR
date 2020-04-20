@@ -141,7 +141,7 @@ def extract_CIPW_results(path,
     df_final = pd.DataFrame()
 
     df_final["Q"] = df_query["  QZ"]
-    df_final["P"] = df_query["  AB"] 
-    df_final["K"] = df_query["  OR"] + df_query["  AN"]
+    df_final["P"] = df_query["  AN"] + 0.95 * df_query["  AB"]
+    df_final["K"] = df_query["  OR"] + 0.05 * df_query["  AB"]
 
     return df_final
