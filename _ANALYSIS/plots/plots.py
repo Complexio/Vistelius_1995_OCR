@@ -929,12 +929,24 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
            xspacing=1.0, xformat="2.0f", yspacing=1.0, yformat="2.0f",
            adjust='datalim', skip_xaxis_label=0, skip_xaxis_start=0,
            skip_yaxis_label=0, skip_yaxis_start=0,
-           override_data_boundaries=False, axes_offset=0.1, **kwargs):
+           override_data_boundaries=False, axes_offset=0.1, show_legend=True,
+           legend_outside_plot=False, multiplier=0.75, bbox_x_anchor=1.3,
+           **kwargs):
     """Plot biplot of PCA with or wihtout loadings"""
 
     # Get PC scores
     xs = pca_df.loc[:, PCx]
     ys = pca_df.loc[:, PCy]
+
+    # Check which values of 'hue_order' are actually in 'hue' so that
+    # we can simplify the legend
+    if ('hue_order' in kwargs.keys()) and ('hue' in kwargs.keys()):
+        hue_order_simplified = []
+
+        for hue_ in kwargs['hue_order']:
+            if hue_ in pca_df[kwargs['hue']].unique():
+                hue_order_simplified.append(hue_)
+        kwargs['hue_order'] = hue_order_simplified
 
     # Plot basic biplot
     ax = sns.scatterplot(x=PCx, y=PCy,
@@ -978,8 +990,29 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
                         columns[i],
                         color='k')
 
-    # Plot smaller axis legend than default
-    ax.legend(fontsize='x-small')
+    handles, labels = ax.get_legend_handles_labels()
+
+    if show_legend:
+        if legend_outside_plot:
+            # Shrink current axis by 20%
+            box = ax.get_position()
+            ax.set_position([box.x0,
+                             box.y0,
+                             box.width * multiplier,
+                             box.height])
+
+            # # Put a legend below current axis
+            # Slice the handles and labels to remove automatic Seaborn
+            # legend title
+            ax.legend(handles=handles[1:], labels=labels[1:],
+                      loc='upper center',
+                      bbox_to_anchor=(bbox_x_anchor, 1),
+                      fancybox=True, shadow=True, ncol=1, title=None,
+                      fontsize='x-small')
+        else:
+            # Plot smaller axis legend than default
+            ax.legend(fontsize='x-small')
+            plt.tight_layout()
 
     # Restyle axes labels
     axes_labels(PCx.replace("0", ""), PCy.replace("0", ""))
@@ -1001,7 +1034,6 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
 
     # Set facecolor of figure
     plt.gcf().set_facecolor('white')
-    plt.tight_layout()
 
     # Add extra description to save name if needed
     if "hue" in list(kwargs.keys()):
