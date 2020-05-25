@@ -31,6 +31,10 @@ QAPF_upper_regions_numbers_vs_cmap = {}
 for key, value in zip(range(0, 21, 1), np.arange(0, 1.05, 0.05)):
     QAPF_upper_regions_numbers_vs_cmap[key] = value
 
+cluster_numbers_vs_cmap = {}
+for key, value in zip(range(0, 8, 1), np.arange(0, 1.05, 0.125)):
+    cluster_numbers_vs_cmap[key] = value
+
 cmap_dict = defaultdict(lambda: mpl.cm.binary,
                         {"Q": mpl.cm.binary,
                          "P": mpl.cm.Reds,
@@ -812,6 +816,181 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
         plt.savefig(f"../_FIGURES/qapf_contour/{pluton}_QAPF_interpolated_control.pdf")
     else:
         plt.savefig(f"../_FIGURES/qapf_contour/{pluton}_QAPF_interpolated.pdf")
+
+    plt.show()
+
+
+def plot_contour_map_interpolated_cluster(interpolation_array,
+                                          grid,
+                                          coordinates_utm_qapf,
+                                          pluton,
+                                          values_to_plot,
+                                          number_of_classes=8,
+                                          skip_xaxis_label=0,
+                                          skip_yaxis_label=0,
+                                          skip_xaxis_start=0,
+                                          skip_yaxis_start=0,
+                                          legend_outside_plot=False,
+                                          multiplier=0.75,
+                                          bbox_x_anchor=1.3,
+                                          plot_control_points=True,
+                                          show_qapf_control_points=True,
+                                          marker_size=1,
+                                          no_legend=False,
+                                          **kwargs):
+
+    cmap_custom, norm_custom = create_custom_colormap(base_cmap='Dark2')
+    levels_custom = [i for i in range(number_of_classes + 1)]
+
+    # Add one to incorporate "0: np.nan qapf class"
+    number_of_colors = len(values_to_plot) + 1
+
+    values_to_plot_extended = [0]
+    values_to_plot_extended.extend(values_to_plot)
+
+    converted_numbers = {}
+    converted_numbers_inverse = {}
+    cmap_custom_converted = {}
+
+    levels_custom_converted = [i for i in range(number_of_colors + 1)]
+
+    for index, item in enumerate(values_to_plot_extended):
+        converted_numbers[item] = index
+        converted_numbers_inverse[index] = item
+        if item == 0:
+            correction = 1
+        else:
+            correction = 0
+        cmap_custom_converted[index] = \
+            cmap_custom(cluster_numbers_vs_cmap[item -
+                        1 + correction])
+    # print(cmap_custom_converted)
+
+    cmap_custom_converted = \
+        ListedColormap(list(cmap_custom_converted.values()))
+
+    norm_custom_converted = BoundaryNorm(levels_custom_converted,
+                                         number_of_colors + 1,
+                                         clip=True)
+
+    interpolation_array_converted = \
+        np.vectorize(converted_numbers.get)(interpolation_array)
+
+    # Add 1 to every value in array to make sure right color is plotted
+    # later on
+    interpolation_array_converted += 1
+
+    fig, ax = plt.subplots(**kwargs)
+
+    contour = ax.contourf(grid[0], grid[1], interpolation_array_converted,
+                          cmap=cmap_custom_converted,
+                          norm=norm_custom_converted,
+                          levels=levels_custom_converted)
+
+    if plot_control_points:
+        if show_qapf_control_points:
+            for index, row in coordinates_utm_qapf.iterrows():
+                ax.plot(row["X"],
+                        row["Y"],
+                        color=cmap_custom(cluster_numbers_vs_cmap[row[0] - 1]),
+                        marker='o',
+                        markeredgecolor='k',
+                        markeredgewidth=0.5,
+                        ms=2,
+                        linestyle='None')
+        else:
+            ax.plot(coordinates_utm_qapf["X"],
+                    coordinates_utm_qapf["Y"],
+                    color='k',
+                    marker='o',
+                    ms=marker_size,
+                    linestyle='None')
+
+    # plt.colorbar(contour)
+
+    if not no_legend:
+
+        # proxy = [plt.Rectangle((0, 0), 1, 1,
+        #          fc=cmap_custom(QAPF_upper_regions_numbers_vs_cmap[value]))
+        #          for value in values_to_plot]
+
+        # print(contour.collections)
+
+        # Get rectangles with correct color for legend
+        proxy = [plt.Rectangle((0, 0), 1, 1, fc=pc.get_facecolor()[0])
+                 for pc in contour.collections]
+
+        # for pc in contour.collections:
+        #     print(pc.get_facecolor())
+
+        # print(contour.levels)
+
+        values_to_plot_converted = list(converted_numbers.values())
+
+        values = [level for level in contour.levels if level in values_to_plot_converted]
+        # print(values)
+        values = [value for value in map(int, values)]
+
+        # print(proxy)
+        proxy_items = [proxy[value] for value in values_to_plot_converted[1:]]
+        # print(proxy_items)
+        labels = [f"cluster {i-1}" for i in values_to_plot]
+        # print(values_to_plot)
+        # labels = [QAPF_upper_regions_numbers_inverse[value]
+        #           for value in values_to_plot]
+
+        # plt.legend(proxy_items, labels)
+
+        if legend_outside_plot:
+            # Shrink current axis by 20%
+            box = ax.get_position()
+            ax.set_position([box.x0,
+                             box.y0,
+                             box.width * multiplier,
+                             box.height,
+                             ])
+
+            # # Put a legend below current axis
+            ax.legend(proxy_items, labels, loc='upper center',
+                      bbox_to_anchor=(bbox_x_anchor, 1),
+                      fancybox=True, shadow=True, ncol=1, title=None,
+                      fontsize='x-small')
+        else:
+            ax.legend(proxy_items, labels, ncol=1, title="", prop={'size': 8})
+            plt.tight_layout()
+
+    if skip_xaxis_label != 0:
+        every_nth = skip_xaxis_label
+        for n, label in enumerate(ax.xaxis.get_ticklabels(),
+                                  start=skip_xaxis_start):
+            if n % every_nth != 0:
+                label.set_visible(False)
+
+    if skip_yaxis_label != 0:
+        every_nth = skip_yaxis_label
+        for n, label in enumerate(ax.yaxis.get_ticklabels(),
+                                  start=skip_yaxis_start):
+            if n % every_nth != 0:
+                label.set_visible(False)
+
+    # Set the color of the visible spines
+    for spine in ['left', 'right', 'top', 'bottom']:
+        ax.spines[spine].set_color('grey')
+
+    # Set general tick parameters
+    ax.tick_params(axis='both',
+                   direction='in',
+                   colors='grey',
+                   labelsize=9)
+
+    ax.set_aspect('equal', adjustable='box')
+
+    fig.patch.set_facecolor('white')
+
+    if show_qapf_control_points:
+        plt.savefig(f"../_FIGURES/cluster_contour/{pluton}_cluster_interpolated_control.pdf")
+    else:
+        plt.savefig(f"../_FIGURES/cluster_contour/{pluton}_cluster_interpolated.pdf")
 
     plt.show()
 
