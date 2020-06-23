@@ -660,9 +660,10 @@ def plot_contour_map_interpolated_QAPF(interpolation_array,
                                        show_qapf_control_points=True,
                                        marker_size=1,
                                        no_legend=False,
+                                       colormap="tab20",
                                        **kwargs):
 
-    cmap_custom, norm_custom = create_custom_colormap()
+    cmap_custom, norm_custom = create_custom_colormap(base_cmap=colormap)
     levels_custom = [i for i in range(number_of_classes + 1)]
 
     # Add one to incorporate "0: np.nan qapf class"
@@ -837,9 +838,10 @@ def plot_contour_map_interpolated_cluster(interpolation_array,
                                           show_qapf_control_points=True,
                                           marker_size=1,
                                           no_legend=False,
+                                          colormap='Dark2',
                                           **kwargs):
 
-    cmap_custom, norm_custom = create_custom_colormap(base_cmap='Dark2')
+    cmap_custom, norm_custom = create_custom_colormap(base_cmap=colormap)
     levels_custom = [i for i in range(number_of_classes + 1)]
 
     # Add one to incorporate "0: np.nan qapf class"
