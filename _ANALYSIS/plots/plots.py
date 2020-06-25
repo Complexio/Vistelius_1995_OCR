@@ -1104,7 +1104,7 @@ def custom_colorbar():
 
 
 def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
-           loadings=True, loading_labels=True, loading_factor=1,
+           plot_loadings=True, loading_labels=True, loading_factor=1,
            loadings_forward=False, plot_datalabels=False, label_size=6,
            offsets=[0., 0., 0., 0.], extra_ticks=[[], [], [], []],
            xspacing=1.0, xformat="2.0f", yspacing=1.0, yformat="2.0f",
@@ -1112,12 +1112,141 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
            skip_yaxis_label=0, skip_yaxis_start=0,
            override_data_boundaries=False, axes_offset=0.1, show_legend=True,
            legend_outside_plot=False, multiplier=0.75, bbox_x_anchor=1.3,
+           biplot_type='form', arrow_head_width=0.1, arrow_width=0.005,
            **kwargs):
-    """Plot biplot of PCA with or wihtout loadings"""
+    """Plot biplot of PCA with or wihtout loadings
+
+    Parameters:
+    -----------
+    pca : sklearn PCA instance
+        pca model
+    pca_df : pd.DataFrame
+        Dataframe with PCs and metadata
+    columns : list (optional)
+        names of labels to show with loadings
+    group : str (optional)
+        group's name
+    PCx : str (optional)
+        PC name for plotting on x-axis
+    PCy : str (optional)
+        PC name for plotting on y-axis
+    plot_loadings : bool (optional)
+        Whether to plot the loading sor not; defaults to True
+    loadings_labels : bool  (optional)
+        Whether to plot the loading labels or not; defaults to True
+    loading_factor = float (optional)
+        Factor used to scale the loadings with. Use for better
+        visibility of loadings, although sensu stricto a factor of 1 is
+        the most correct. Defaults to 1.
+    loadings_forward : bool (optional)
+        Whether to plot loadings on forground or background; defaults to
+        False
+    plot_datalabels : bool (optional)
+        Whether to plot the labels of the datapoints; defaults to False
+    label_size : int (optional)
+        Size of the datalabels; ignored when plot_datalabels=False;
+        defaults to 6
+    offsetts : list of floats (optional)
+        Offsets for axes spines in the order of xmin, xmax, ymin, ymax
+    extra_ticks : list of lists (optional)
+        Extra ticks to create on axes in the order of xmin, xmax, ymin,
+        ymax
+    xspacing : float (optional)
+        Interval spacing to use on x-axis
+    yspacing : float (optional)
+        Interval spacing to use on y-axis
+    xformat : str (optional)
+        str format to use for x-axis tick labels
+    yformat : str (optional)
+        str format to use for y-axis tick labels
+    adjust : str (optional)
+        Method to determine boundaries of plot: 'datalim' or 'box';
+        defaults to 'datalim'
+    skip_xaxis_label : int (optional)
+        Interval of skipping x-axis tick labels
+    skip_yaxis_label : int (optional)
+        Interval of skipping y-axis tick labels
+    skip_xaxis_start : int (optional)
+        Where to start skipping x-axis tick labels
+    skip_yaxis_start^: int (optional)
+        Where to start skipping y-axis tick labels
+    override_data_boundaries : bool (optional)
+        Whether to override plot boundaries imposed by adjust by a set
+        amount
+    axes_offset : float (optional)
+        How much the axes are shifted from eachother so that they not
+        meet at the 'origin'
+    show_legend : bool (optional)
+        Whether to show a legend or not; defaults to True
+    legend_outside_plot : bool  (optional)
+        Whether to plot the legend outside of the plot or not; defaults
+        to False
+    multiplier : float (optional)
+        Used in conjunction with bbox_x_anchor to position the legend if
+        legend_outside_plot=True; ignored otherwise.
+    bbox_x_anchor : float (optional)
+        Used in conjunction with multiplier to position the legend if
+        legend_outside_plot=True; ignored otherwise.
+    biplot_type : str (optional)
+        Which type of biplot to plot. Accepts 'form', 'covariance' or
+        'wrong' as valid inputs. 'wrong' is how biplots were plotted before 'form'/'covariance' code changes. Defaults to 'form'
+    arrow_width : float (optional)
+        width of arrow line of loadings; ignored if plot_loadings=False
+    arrow_head_width : float (optional)
+        width of arrow head of loadings; ignored if plot_loadings=False
+    **kwargs
+        key word arguments; any arguments you might want to pass in to
+        functions used in this function. e.g. 'hue' and 'hue_order' get
+        passed on to sns.scatterplot() call
+    """
+
+
+    n_comp = pca.n_components_
+
+    US = pca_df.copy().iloc[:, :n_comp]
+
+    # print(US_control_points)
+    # print(type(US_control_points))
+
+    S = pca.singular_values_
+
+    V = pca.components_
+
+    if biplot_type == 'form':
+        scores = US
+        loadings = V
+        # print(loadings)
+
+    elif biplot_type == 'covariance':
+        # print(US_control_points)
+        # print(S)
+        # print(US_control_points / S)
+        scores = US / S
+
+        # print(pca.n_samples_ - 1)
+        # print(np.sqrt(pca.n_samples_ - 1))
+
+        # print(V)
+        loadings = V * S.reshape(-1, 1) / np.sqrt(pca.n_samples_ - 1)
+        # print(loadings)
+
+    elif biplot_type == 'wrong':
+        scores = US
+
+        # print(np.max(US_control_points).values.reshape(-1, 1))
+        # print(V)
+
+        loadings = V * np.max(US).values.reshape(-1, 1)
+        # print(loadings)
+
+    else:
+        raise KeyError("biplot_type must be one of [form, covariance, wrong]")
+
+
 
     # Get PC scores
-    xs = pca_df.loc[:, PCx]
-    ys = pca_df.loc[:, PCy]
+    xs = scores.loc[:, PCx]
+    ys = scores.loc[:, PCy]
 
     # Check which values of 'hue_order' are actually in 'hue' so that
     # we can simplify the legend
@@ -1131,24 +1260,27 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
 
     # Plot basic biplot
     ax = sns.scatterplot(x=PCx, y=PCy,
-                         data=pca_df,
+                         data=scores,
                          edgecolor='k',
                          linewidth=0.3,
-                         **kwargs,
+                         hue=pca_df[kwargs['hue']],
+                         hue_order=kwargs['hue_order'],
+                         palette=kwargs['palette'],
+                         s=kwargs['s'],
                          )
 
     if plot_datalabels:
-        for i, row in pca_df.iterrows():
+        for i, row in scores.iterrows():
             ax.text(row[PCx],
                     row[PCy],
                     i,
                     fontsize=label_size)
 
     # Plot PC loadings if wanted
-    if loadings:
+    if plot_loadings:
         # Calculate PC vectors/loadings
-        xvector = pca.components_[int(PCx[-1]) - 1]
-        yvector = pca.components_[int(PCy[-1]) - 1]
+        xvector = loadings[int(PCx[-1]) - 1]
+        yvector = loadings[int(PCy[-1]) - 1]
 
         for i in range(len(xvector)):
             # Arrows project features (ie columns from csv) as vectors onto
@@ -1158,16 +1290,16 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
             else:
                 zorder_loadings = -10
             ax.arrow(0, 0,
-                     xvector[i]*max(xs)*loading_factor,
-                     yvector[i]*max(ys)*loading_factor,
+                     xvector[i]*loading_factor,
+                     yvector[i]*loading_factor,
                      color='k',
-                     width=0.005,
-                     head_width=0.1,
+                     width=arrow_width,
+                     head_width=arrow_head_width,
                      zorder=zorder_loadings)
 
             if loading_labels:
-                ax.text(position_text(xvector[i]*max(xs)*loading_factor, 0.2),
-                        position_text(yvector[i]*max(ys)*loading_factor, 0.2),
+                ax.text(position_text(xvector[i]*loading_factor, 0.05),
+                        position_text(yvector[i]*loading_factor, 0.05),
                         columns[i],
                         color='k')
 
@@ -1201,7 +1333,7 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
     sns.despine()
 
     # Format the axes to get a better looking plot
-    axes_format(ax, pca_df[PCx], pca_df[PCy], offsets,
+    axes_format(ax, scores[PCx], scores[PCy], offsets,
                 adjust=adjust,
                 xspacing=xspacing, xformat=xformat,
                 yspacing=yspacing, yformat=yformat,
@@ -1222,7 +1354,7 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
     else:
         add = ""
 
-    plt.savefig(f"../_FIGURES/biplots/{group}/{group}_biplot_control_points{add}.pdf",
+    plt.savefig(f"../_FIGURES/biplots/{group}/{group}_{biplot_type}_biplot_control_points{add}.pdf",
          dpi=900)
 
     plt.show()
@@ -1633,8 +1765,10 @@ def create_custom_tick_list(data, spacing=1.0, format="2.0f"):
     data_max = data.max()
 
     if spacing < 1.0:
-        ticks_start = np.floor(data_min) + spacing
-        ticks_end = np.ceil(data_max)
+        ticks_start = np.round(data_min, decimals=int(format[2])-1)
+        ticks_end = np.round(data_max, decimals=int(format[2])-1)
+        # ticks_start = np.floor(data_min) + spacing
+        # ticks_end = np.ceil(data_max)
     else:
         ticks_start = np.floor(data_min)
         ticks_end = np.ceil(data_max) + 0.01
