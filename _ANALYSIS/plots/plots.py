@@ -1104,7 +1104,9 @@ def custom_colorbar():
 
 
 def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
-           plot_loadings=True, loading_labels=True, loading_factor=1,
+           plot_loadings=True, plot_scores=True,
+           loading_labels=True, loading_factor=1,
+           loading_label_offsets=(0.05, 0.05),
            loadings_forward=False, plot_datalabels=False, label_size=6,
            offsets=[0., 0., 0., 0.], extra_ticks=[[], [], [], []],
            xspacing=1.0, xformat="2.0f", yspacing=1.0, yformat="2.0f",
@@ -1132,12 +1134,16 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
         PC name for plotting on y-axis
     plot_loadings : bool (optional)
         Whether to plot the loading sor not; defaults to True
+    plot_scores : bool (optional)
+        Whether to plot the scores or not; defaults to True
     loadings_labels : bool  (optional)
         Whether to plot the loading labels or not; defaults to True
     loading_factor = float (optional)
         Factor used to scale the loadings with. Use for better
         visibility of loadings, although sensu stricto a factor of 1 is
         the most correct. Defaults to 1.
+    loading_label_offsets : tuple of floats
+        How much to offset the loading labels compared to the arrows
     loadings_forward : bool (optional)
         Whether to plot loadings on forground or background; defaults to
         False
@@ -1200,7 +1206,6 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
         passed on to sns.scatterplot() call
     """
 
-
     n_comp = pca.n_components_
 
     US = pca_df.copy().iloc[:, :n_comp]
@@ -1242,8 +1247,6 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
     else:
         raise KeyError("biplot_type must be one of [form, covariance, wrong]")
 
-
-
     # Get PC scores
     xs = scores.loc[:, PCx]
     ys = scores.loc[:, PCy]
@@ -1258,23 +1261,26 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
                 hue_order_simplified.append(hue_)
         kwargs['hue_order'] = hue_order_simplified
 
-    # Plot basic biplot
-    ax = sns.scatterplot(x=PCx, y=PCy,
-                         data=scores,
-                         edgecolor='k',
-                         linewidth=0.3,
-                         hue=pca_df[kwargs['hue']],
-                         hue_order=kwargs['hue_order'],
-                         palette=kwargs['palette'],
-                         s=kwargs['s'],
-                         )
+    fig, ax = plt.subplots()
 
-    if plot_datalabels:
-        for i, row in scores.iterrows():
-            ax.text(row[PCx],
-                    row[PCy],
-                    i,
-                    fontsize=label_size)
+    if plot_scores:
+    # Plot basic biplot
+        ax = sns.scatterplot(x=PCx, y=PCy,
+                             data=scores,
+                             edgecolor='k',
+                             linewidth=0.3,
+                             hue=pca_df[kwargs['hue']],
+                             hue_order=kwargs['hue_order'],
+                             palette=kwargs['palette'],
+                             s=kwargs['s'],
+                             )
+
+        if plot_datalabels:
+            for i, row in scores.iterrows():
+                ax.text(row[PCx],
+                        row[PCy],
+                        i,
+                        fontsize=label_size)
 
     # Plot PC loadings if wanted
     if plot_loadings:
@@ -1298,14 +1304,15 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
                      zorder=zorder_loadings)
 
             if loading_labels:
-                ax.text(position_text(xvector[i]*loading_factor, 0.05),
-                        position_text(yvector[i]*loading_factor, 0.05),
+                ll_x_offset, ll_y_offset = loading_label_offsets
+                ax.text(position_text(xvector[i]*loading_factor, ll_x_offset),
+                        position_text(yvector[i]*loading_factor, ll_y_offset),
                         columns[i],
                         color='k')
 
     handles, labels = ax.get_legend_handles_labels()
 
-    if show_legend:
+    if show_legend and plot_scores:
         if legend_outside_plot:
             # Shrink current axis by 20%
             box = ax.get_position()
