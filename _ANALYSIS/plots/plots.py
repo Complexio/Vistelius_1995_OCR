@@ -1333,6 +1333,11 @@ def biplot(pca, pca_df, columns=[], group=None, PCx="PC01", PCy="PC02",
             # Plot smaller axis legend than default
             ax.legend(fontsize='x-small')
             plt.tight_layout()
+    else:
+        try:
+            ax.get_legend().remove()
+        except AttributeError as error:
+            pass
 
     # Restyle axes labels
     axes_labels(PCx.replace("0", ""), PCy.replace("0", ""))
